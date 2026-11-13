@@ -54,19 +54,28 @@ public class AuthService {
     @Transactional
     public TokenResponse loginGoogle(GoogleLoginRequest req) {
         GoogleTokenVerifier.GoogleUser g = google.verificar(req.idToken());
-        String email = normalizar(g.email());
-        Usuario u = repo.findByGoogleId(g.id())
+        return emitir(encontrarOuCriarPorGoogle(g.id(), g.email(), g.nome()));
+    }
+
+    /**
+     * Acha o usuário pela conta Google (ou pelo e-mail, vinculando), ou cria um novo.
+     * Usado pelo app (ID token) e pela página de login do conector do Claude.
+     */
+    @Transactional
+    public Usuario encontrarOuCriarPorGoogle(String googleId, String emailBruto, String nome) {
+        String email = normalizar(emailBruto);
+        Usuario u = repo.findByGoogleId(googleId)
                 .or(() -> repo.findByEmail(email))
                 .orElseGet(() -> {
                     Usuario novo = new Usuario();
                     novo.setEmail(email);
-                    novo.setNome(g.nome() == null || g.nome().isBlank() ? email : g.nome());
+                    novo.setNome(nome == null || nome.isBlank() ? email : nome);
                     return novo;
                 });
         if (u.getGoogleId() == null) {
-            u.setGoogleId(g.id());
+            u.setGoogleId(googleId);
         }
-        return emitir(repo.save(u));
+        return repo.save(u);
     }
 
     @Transactional(readOnly = true)

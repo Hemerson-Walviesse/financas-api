@@ -1,6 +1,8 @@
 server:
   # O Render define a porta pela variável PORT
   port: ${PORT:8080}
+  # Render fica atrás de um proxy HTTPS: usa os cabeçalhos X-Forwarded-* para montar as URLs
+  forward-headers-strategy: framework
 
 spring:
   ai:
@@ -28,6 +30,8 @@ spring:
     show-sql: ${SHOW_SQL:true}
 
 app:
+  # Endereço público da API (no Render: https://<seu-app>.onrender.com, sem barra no final)
+  url: ${APP_URL:http://localhost:8080}
   jwt:
     # Em produção, defina a variável JWT_SECRET (mínimo 32 caracteres)
     secret: ${JWT_SECRET:dev-secret-troque-em-producao-0123456789abcdef}
@@ -35,3 +39,5 @@ app:
   google:
     # Client ID do tipo "Aplicativo da Web" criado no Google Cloud
     client-id: ${GOOGLE_CLIENT_ID:}
+    # Só para o botão "Entrar com Google" da página de login do conector do Claude
+    client-secret: ${GOOGLE_CLIENT_SECRET:}

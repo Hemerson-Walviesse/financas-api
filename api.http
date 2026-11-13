@@ -109,3 +109,23 @@ Authorization: Bearer {{token}}
 Content-Type: application/json
 
 { "descricao": "", "valor": -5 }
+
+### ===== Conector do Claude (OAuth) =====
+
+### 16. /mcp sem token: deve dar 401 com "resource_metadata" no cabeçalho WWW-Authenticate
+POST http://localhost:8080/mcp
+Content-Type: application/json
+
+{}
+
+### 17. Metadados do recurso protegido
+GET http://localhost:8080/.well-known/oauth-protected-resource
+
+### 18. Metadados do servidor de autorização (deve ter registration_endpoint)
+GET http://localhost:8080/.well-known/oauth-authorization-server
+
+### 19. Registro de cliente (como o Claude faz)
+POST http://localhost:8080/oauth2/register
+Content-Type: application/json
+
+{ "client_name": "Claude", "redirect_uris": ["https://claude.ai/api/mcp/auth_callback"] }
