@@ -1,0 +1,111 @@
+### Testes da financas-api (IntelliJ: clique no ▶ ao lado de cada requisição)
+### Rode o 1 (ou o 2) primeiro: o token fica salvo e é usado em todas as outras.
+
+### 1. Registrar (já devolve o token)
+POST http://localhost:8080/api/auth/registrar
+Content-Type: application/json
+
+{ "nome": "Hemerson", "email": "hemerson@financas.com", "senha": "senha-forte-123" }
+
+> {% client.global.set("token", response.body.token); %}
+
+### 2. Login (use quando o usuário já existir)
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{ "email": "hemerson@financas.com", "senha": "senha-forte-123" }
+
+> {% client.global.set("token", response.body.token); %}
+
+### 2b. Login com Google (cole um ID token do Google; veja o passo a passo no chat)
+POST http://localhost:8080/api/auth/google
+Content-Type: application/json
+
+{ "idToken": "COLE_AQUI_O_ID_TOKEN" }
+
+> {% client.global.set("token", response.body.token); %}
+
+### 3. Quem sou eu
+GET http://localhost:8080/api/auth/eu
+Authorization: Bearer {{token}}
+
+### 4. Sem token (deve dar 401)
+GET http://localhost:8080/api/categorias
+
+### 5. Login com senha errada (deve dar 401)
+POST http://localhost:8080/api/auth/login
+Content-Type: application/json
+
+{ "email": "hemerson@financas.com", "senha": "errada" }
+
+### 6. Criar categorias
+POST http://localhost:8080/api/categorias
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "nome": "Mercado" }
+
+> {% client.global.set("catMercado", response.body.id); %}
+
+###
+POST http://localhost:8080/api/categorias
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "nome": "Casa" }
+
+> {% client.global.set("catCasa", response.body.id); %}
+
+### 7. Listar categorias
+GET http://localhost:8080/api/categorias
+Authorization: Bearer {{token}}
+
+### 8. Criar conta recorrente (luz)
+POST http://localhost:8080/api/contas
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "descricao": "Conta de luz", "valor": 180.50, "vencimento": "2026-11-15", "recorrente": true, "categoriaId": {{catCasa}} }
+
+> {% client.global.set("contaLuz", response.body.id); %}
+
+### 9. Contas que vencem nos próximos 7 dias
+GET http://localhost:8080/api/contas/proximas?dias=7
+Authorization: Bearer {{token}}
+
+### 10. Pagar a conta (cria a de dezembro automaticamente)
+PATCH http://localhost:8080/api/contas/{{contaLuz}}/pagar
+Authorization: Bearer {{token}}
+
+### 11. Listar todas as contas
+GET http://localhost:8080/api/contas
+Authorization: Bearer {{token}}
+
+### 12. Lançar gastos
+POST http://localhost:8080/api/gastos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "descricao": "Compra do mês", "valor": 450.90, "data": "2026-11-10", "categoriaId": {{catMercado}} }
+
+###
+POST http://localhost:8080/api/gastos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "descricao": "Padaria", "valor": 25.00, "data": "2026-11-12" }
+
+### 13. Gastos do mês
+GET http://localhost:8080/api/gastos?mes=2026-11
+Authorization: Bearer {{token}}
+
+### 14. Resumo do mês
+GET http://localhost:8080/api/resumo?mes=2026-11
+Authorization: Bearer {{token}}
+
+### 15. Validação (deve dar 400)
+POST http://localhost:8080/api/gastos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{ "descricao": "", "valor": -5 }

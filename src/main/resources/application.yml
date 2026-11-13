@@ -1,0 +1,37 @@
+server:
+  # O Render define a porta pela variável PORT
+  port: ${PORT:8080}
+
+spring:
+  ai:
+    mcp:
+      server:
+        name: financas
+        version: 1.0.0
+        type: SYNC
+        protocol: STATELESS
+        instructions: >
+          Ferramentas do app de finanças pessoais do usuário. Valores em reais (BRL),
+          datas no formato AAAA-MM-DD e meses no formato AAAA-MM. Use resumo_do_mes
+          para visão geral, adicionar_gasto para lançar despesas e contas_a_vencer
+          para lembrar o usuário de pagamentos.
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/financas}
+    username: ${DB_USER:financas}
+    password: ${DB_PASS:financas}
+    hikari:
+      # Poucas conexões: o plano grátis do Neon tem limite
+      maximum-pool-size: 5
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: ${SHOW_SQL:true}
+
+app:
+  jwt:
+    # Em produção, defina a variável JWT_SECRET (mínimo 32 caracteres)
+    secret: ${JWT_SECRET:dev-secret-troque-em-producao-0123456789abcdef}
+    expiracao-dias: ${JWT_EXPIRACAO_DIAS:30}
+  google:
+    # Client ID do tipo "Aplicativo da Web" criado no Google Cloud
+    client-id: ${GOOGLE_CLIENT_ID:}

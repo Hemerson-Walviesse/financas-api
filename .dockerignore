@@ -1,0 +1,8 @@
+target/
+.idea/
+*.iml
+.git/
+api.http
+docker-compose.yml
+mvnw21.cmd
+HELP.md
